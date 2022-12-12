@@ -37,18 +37,6 @@ func InstallCommand(out output.Output) *cobra.Command {
 	}
 }
 
-// RemoveCommand creates a new command to remove a source
-func RemoveCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
-		Use:   "remove",
-		Short: "Removes a source",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
-			return nil
-		},
-	}
-}
-
 // ListCommand creates a new command to list all source
 func ListCommand(out output.Output) *cobra.Command {
 	return &cobra.Command{
