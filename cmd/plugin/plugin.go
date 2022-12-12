@@ -9,6 +9,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
+
+	avmpkg "github.com/d2iq-labs/avm/pkg/avm"
+	"github.com/d2iq-labs/avm/pkg/types"
 )
 
 func NewCommand(out output.Output) *cobra.Command {
@@ -19,8 +22,6 @@ func NewCommand(out output.Output) *cobra.Command {
 
 	// Subcommands
 	cmd.AddCommand(InstallCommand(out))
-	cmd.AddCommand(AddCommand(out))
-	cmd.AddCommand(RemoveCommand(out))
 	cmd.AddCommand(ListCommand(out))
 
 	return cmd
@@ -32,31 +33,25 @@ func InstallCommand(out output.Output) *cobra.Command {
 		Use:   "install",
 		Short: "Installs a tool for a specific plugin",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
-			return nil
-		},
-	}
-}
+			avm, err := avmpkg.New(out)
+			if err != nil {
+				return fmt.Errorf("failed to initialize avm: %w", err)
+			}
 
-// AddCommand creates a new command to add a plugin
-func AddCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
-		Use:   "add",
-		Short: "Adds a plugin",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
-			return nil
-		},
-	}
-}
+			defaultSource := avm.GetDefaultSource()
 
-// RemoveCommand creates a new command to remove a plugin
-func RemoveCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
-		Use:   "remove",
-		Short: "Removes a plugin",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
+			err = defaultSource.InstallPluginVersion(
+				&types.InstallPluginVersionRequest{
+					Name:    "golang",
+					Version: "1.19.3",
+				},
+			)
+			if err != nil {
+				return fmt.Errorf("failed to install plugin: %w", err)
+			}
+
+			fmt.Printf("installed plugin %s with version %s\n", "golang", "1.19.3")
+
 			return nil
 		},
 	}
@@ -68,7 +63,30 @@ func ListCommand(out output.Output) *cobra.Command {
 		Use:   "list",
 		Short: "List all plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
+			avm, err := avmpkg.New(out)
+			if err != nil {
+				return fmt.Errorf("failed to initialize avm: %w", err)
+			}
+
+			defaultSource := avm.GetDefaultSource()
+
+			plugins, err := defaultSource.ListPlugins()
+			if err != nil {
+				return fmt.Errorf("failed to list plugins: %w", err)
+			}
+
+			for _, plugin := range plugins {
+				fmt.Printf("%s\n", plugin.Name)
+
+				versions, err := plugin.Versions()
+				if err != nil {
+					return fmt.Errorf("failed to list versions: %w", err)
+				}
+
+				for _, version := range versions {
+					fmt.Printf("\t%s\n", version.Version)
+				}
+			}
 			return nil
 		},
 	}
