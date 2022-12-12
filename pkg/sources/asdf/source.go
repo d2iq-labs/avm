@@ -5,16 +5,17 @@ package asdf
 
 import (
 	"fmt"
-	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
 
 	_ "embed"
 
+	"github.com/magefile/mage/sh"
+
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
 
 	"github.com/d2iq-labs/avm/pkg/config"
-	"github.com/d2iq-labs/avm/pkg/sources"
+	"github.com/d2iq-labs/avm/pkg/types"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 	entrypoint string
 
 	// ensure that asdf implements the Source interface
-	_ sources.Source = new(Asdf)
+	_ types.Source = new(Asdf)
 )
 
 // Asdf is a source plugin for asdf
