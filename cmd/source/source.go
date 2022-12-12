@@ -9,12 +9,14 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
+
+	avmpkg "github.com/d2iq-labs/avm/pkg/avm"
 )
 
 func NewCommand(out output.Output) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "source",
-		Short: "source",
+		Short: "Manage plugin sources",
 	}
 
 	// Subcommands
@@ -27,9 +29,16 @@ func NewCommand(out output.Output) *cobra.Command {
 func ListCommand(out output.Output) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
-		Short: "Lists a source",
+		Short: "List installed plugin sources",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
+			avm, err := avmpkg.New(out)
+			if err != nil {
+				return fmt.Errorf("failed to initialize avm: %w", err)
+			}
+
+			for _, source := range avm.ListSources() {
+				fmt.Printf("%s\n", source.Name())
+			}
 			return nil
 		},
 	}
