@@ -18,8 +18,8 @@ var _ AVM = new(avm)
 
 // AVM provides an interface for managing the avm.
 type AVM interface {
-	// ListSources returns a list of installed types.
-	ListSources() []types.Source
+	// GetDefaultSource returns the default the source.
+	GetDefaultSource() types.Source
 }
 
 type avm struct {
@@ -59,14 +59,9 @@ func New(out output.Output) (AVM, error) {
 	return avm, nil
 }
 
-func (a *avm) ListSources() []types.Source {
-	var sourceList []types.Source
-
-	for _, source := range a.sources {
-		sourceList = append(sourceList, source)
-	}
-
-	return sourceList
+func (a *avm) GetDefaultSource() types.Source {
+	// we only have one source right now, so just return it
+	return a.sources["asdf"]
 }
 
 // ensureDirectory ensures that the given directory path exists.

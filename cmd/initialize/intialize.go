@@ -23,7 +23,7 @@ func NewCommand(out output.Output) *cobra.Command {
 				return fmt.Errorf("failed to initialize avm: %w", err)
 			}
 
-			fmt.Printf("Initialized avm with sources: %s\n", avm.ListSources())
+			fmt.Printf("Initialized avm with sources: %s\n", avm.GetDefaultSource())
 
 			return nil
 		},
