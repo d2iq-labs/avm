@@ -5,12 +5,13 @@ package avm
 
 import (
 	"fmt"
-	"github.com/d2iq-labs/avm/pkg/sources/asdf"
 	"os"
 
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
 
 	"github.com/d2iq-labs/avm/pkg/config"
+	"github.com/d2iq-labs/avm/pkg/sources"
+	asdfpkg "github.com/d2iq-labs/avm/pkg/sources/asdf"
 )
 
 var _ AVM = new(avm)
@@ -24,7 +25,7 @@ type AVM interface {
 type avm struct {
 	out     output.Output
 	cfg     config.Config
-	sources map[string]bool
+	sources map[string]sources.Source
 }
 
 func New(out output.Output) (AVM, error) {
@@ -45,29 +46,27 @@ func New(out output.Output) (AVM, error) {
 		return nil, err
 	}
 
-	avm := &avm{out: out, cfg: cfg, sources: map[string]bool{}}
+	avm := &avm{out: out, cfg: cfg, sources: make(map[string]sources.Source)}
 
 	// install sources, if not already installed. this is a no-op if the source is already installed.
-
-	if err := asdf.Install(cfg, out); err != nil {
+	asdf, err := asdfpkg.New(cfg, out)
+	if err != nil {
 		out.Errorf(err, "failed to install asdf")
 	}
 
-	avm.sources["asdf"] = true
+	avm.sources[asdf.Name()] = asdf
 
 	return avm, nil
 }
 
 func (a *avm) ListSources() []string {
-	var sources []string
+	var sourceList []string
 
-	for source, installed := range a.sources {
-		if installed {
-			sources = append(sources, source)
-		}
+	for _, source := range a.sources {
+		sourceList = append(sourceList, source.Name())
 	}
 
-	return sources
+	return sourceList
 }
 
 // ensureDirectory ensures that the given directory path exists.
