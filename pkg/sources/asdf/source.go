@@ -5,9 +5,11 @@ package asdf
 
 import (
 	"fmt"
-	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/magefile/mage/sh"
 
 	_ "embed"
 
@@ -73,4 +75,39 @@ func New(cfg config.Config, out output.Output) (*Asdf, error) {
 
 func (a *Asdf) Name() string {
 	return "asdf"
+}
+
+func (a *Asdf) UpdateAll() (string, error) {
+	return a.execute("plugin", "update", "--all")
+}
+
+func (a *Asdf) InstallPlugin(plugin string) (string, error) {
+	output, err := a.execute("plugin", "list")
+	if err != nil {
+		return output, err
+	}
+
+	// We do not need to add the plugin first
+	// Maybe this should be a bit more safer than a simple contains of the whole output string
+	if strings.Contains(output, plugin) {
+		return output, err
+	}
+
+	return a.execute("plugin", "add", plugin)
+}
+
+func (a *Asdf) Install(args ...string) (string, error) {
+	output, err := a.UpdateAll()
+	if err != nil {
+		return output, err
+	}
+
+	output, err = a.InstallPlugin(args[0])
+	if err != nil {
+		return output, err
+	}
+
+	// This works but I'm not able to create a dynamic slice i.e. I tried:
+	// return a.execute(append([]string{"install"}, args...))
+	return a.execute("install", "golang", "1.19.2")
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
+
+	avmpkg "github.com/d2iq-labs/avm/pkg/avm"
 )
 
 func NewCommand(out output.Output) *cobra.Command {
@@ -32,7 +34,26 @@ func InstallCommand(out output.Output) *cobra.Command {
 		Use:   "install",
 		Short: "Installs a tool for a specific plugin",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			avm, err := avmpkg.New(out)
+			if err != nil {
+				return fmt.Errorf("failed to initialize avm: %w", err)
+			}
+
+			source := avm.GetDefaultSource()
+
+			if source.Name() != "asdf" {
+				return fmt.Errorf("Currently not supported")
+			}
+
 			out.V(6).Info(fmt.Sprintf("args: %v", args))
+
+			output, err := source.Install(args...)
+			if err != nil {
+				return fmt.Errorf("failed to install plugin: %w", err)
+			}
+
+			out.V(6).Info(fmt.Sprintf("output: %v", output))
+
 			return nil
 		},
 	}

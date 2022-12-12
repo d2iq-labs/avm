@@ -7,4 +7,6 @@ package sources
 type Source interface {
 	// Name returns the name of the source.
 	Name() string
+	// Installs a plugin for that source
+	Install(args ...string) (string, error)
 }

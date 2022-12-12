@@ -20,6 +20,7 @@ var _ AVM = new(avm)
 type AVM interface {
 	// ListSources returns a list of installed sources.
 	ListSources() []sources.Source
+	GetDefaultSource() sources.Source
 }
 
 type avm struct {
@@ -67,6 +68,14 @@ func (a *avm) ListSources() []sources.Source {
 	}
 
 	return sourceList
+}
+
+func (a *avm) GetDefaultSource() sources.Source {
+	for _, source := range a.sources {
+		return source
+	}
+
+	return nil
 }
 
 // ensureDirectory ensures that the given directory path exists.
