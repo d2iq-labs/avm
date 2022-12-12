@@ -5,8 +5,8 @@ package asdf
 
 import (
 	"fmt"
+	"github.com/magefile/mage/sh"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	_ "embed"
@@ -31,7 +31,7 @@ type Asdf struct {
 	path string
 
 	// env is a list of environment variables to set when executing asdf
-	env []string
+	env map[string]string
 }
 
 // New creates a new asdf source plugin. If the source plugin is not installed, it will be installed.
@@ -40,23 +40,17 @@ func New(cfg config.Config, out output.Output) (*Asdf, error) {
 
 	asdfPath := filepath.Join(cfg.SourcesDir(), "asdf")
 
-	var env []string
+	env := make(map[string]string)
 
-	env = append(env, fmt.Sprintf("ASDF_DIR=%s", asdfPath))
-	env = append(env, fmt.Sprintf("ASDF_DATA_DIR=%s", asdfPath))
+	env["ASDF_DIR"] = asdfPath
+	env["ASDF_DATA_DIR"] = asdfPath
 
 	source := &Asdf{path: asdfPath, env: env}
 
 	if _, err := os.Stat(asdfPath); os.IsNotExist(err) {
 		out.V(6).Info(fmt.Sprintf("installing asdf version %s to %s", version, asdfPath))
 
-		cmd := exec.Command("git", "clone", "--branch", version, "https://github.com/asdf-vm/asdf.git", asdfPath)
-
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Env = os.Environ()
-
-		err := cmd.Run()
+		err := sh.RunV("git", "clone", "--branch", version, "https://github.com/asdf-vm/asdf.git", asdfPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to clone asdf: %w", err)
 		}
@@ -66,6 +60,13 @@ func New(cfg config.Config, out output.Output) (*Asdf, error) {
 			return nil, fmt.Errorf("failed to write entrypoint.sh: %w", err)
 		}
 	}
+
+	version, err := source.execute("version")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get asdf version: %w", err)
+	}
+
+	out.V(6).Info(fmt.Sprintf("asdf version %s installed to %s", version, asdfPath))
 
 	return source, nil
 }
