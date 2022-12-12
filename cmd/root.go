@@ -14,6 +14,8 @@ import (
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
 
 	"github.com/d2iq-labs/avm/cmd/initialize"
+	"github.com/d2iq-labs/avm/cmd/plugin"
+	"github.com/d2iq-labs/avm/cmd/source"
 )
 
 func NewCommand(out, errOut io.Writer) (*cobra.Command, output.Output) {
@@ -23,6 +25,8 @@ func NewCommand(out, errOut io.Writer) (*cobra.Command, output.Output) {
 
 	// Subcommands
 	rootCmd.AddCommand(initialize.NewCommand(rootOpts.Output))
+	rootCmd.AddCommand(source.NewCommand(rootOpts.Output))
+	rootCmd.AddCommand(plugin.NewCommand(rootOpts.Output))
 
 	return rootCmd, rootOpts.Output
 }
