@@ -3,8 +3,8 @@
 
 package main
 
-import "fmt"
+import "github.com/d2iq-labs/avm/cmd"
 
 func main() {
-	fmt.Println("Hello, world!")
+	cmd.Execute()
 }
