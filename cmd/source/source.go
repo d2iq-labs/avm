@@ -18,23 +18,9 @@ func NewCommand(out output.Output) *cobra.Command {
 	}
 
 	// Subcommands
-	cmd.AddCommand(InstallCommand(out))
-	cmd.AddCommand(RemoveCommand(out))
 	cmd.AddCommand(ListCommand(out))
 
 	return cmd
-}
-
-// InstallCommand creates a new command to install a source
-func InstallCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
-		Use:   "install",
-		Short: "Installs a source",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			out.V(6).Info(fmt.Sprintf("args: %v", args))
-			return nil
-		},
-	}
 }
 
 // ListCommand creates a new command to list all source
