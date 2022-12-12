@@ -6,13 +6,12 @@ package initialize
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
-	"github.com/adrg/xdg"
 	"github.com/spf13/cobra"
 
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
 
+	"github.com/d2iq-labs/avm/pkg/config"
 	"github.com/d2iq-labs/avm/pkg/sources/asdf"
 )
 
@@ -23,31 +22,22 @@ func NewCommand(out output.Output) *cobra.Command {
 		Short: "Initialize the avm configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			configHome := filepath.Join(xdg.ConfigHome, "avm")
+			cfg := config.DefaultConfig()
 
-			out.V(6).Info(fmt.Sprintf("ensuring config directory exists: %s", configHome))
-
-			if err := os.MkdirAll(configHome, 0755); err != nil {
+			if err := ensureDirectory(cfg.HomeDir(), out); err != nil {
 				return err
 			}
 
-			dataHome := filepath.Join(xdg.DataHome, "avm")
-
-			out.V(6).Info(fmt.Sprintf("ensuring data directory exists: %s", dataHome))
-
-			if err := os.MkdirAll(dataHome, 0755); err != nil {
+			if err := ensureDirectory(cfg.DataDir(), out); err != nil {
 				return err
 			}
 
-			// source plugin directory
-			sourcePath := filepath.Join(dataHome, "sources")
-
-			if err := os.MkdirAll(sourcePath, 0755); err != nil {
+			if err := ensureDirectory(cfg.SourcesDir(), out); err != nil {
 				return err
 			}
 
 			// install sources
-			err := asdf.Install(sourcePath, out)
+			err := asdf.Install(cfg, out)
 			if err != nil {
 				out.Errorf(err, "failed to install asdf")
 			}
@@ -57,4 +47,15 @@ func NewCommand(out output.Output) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// ensureDirectory ensures that the given directory path exists.
+func ensureDirectory(path string, out output.Output) error {
+	out.V(6).Info(fmt.Sprintf("ensuring directory exists: %s", path))
+
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return err
+	}
+
+	return nil
 }
