@@ -19,7 +19,7 @@ var _ AVM = new(avm)
 // AVM provides an interface for managing the avm.
 type AVM interface {
 	// ListSources returns a list of installed sources.
-	ListSources() []string
+	ListSources() []sources.Source
 }
 
 type avm struct {
@@ -59,11 +59,11 @@ func New(out output.Output) (AVM, error) {
 	return avm, nil
 }
 
-func (a *avm) ListSources() []string {
-	var sourceList []string
+func (a *avm) ListSources() []sources.Source {
+	var sourceList []sources.Source
 
 	for _, source := range a.sources {
-		sourceList = append(sourceList, source.Name())
+		sourceList = append(sourceList, source)
 	}
 
 	return sourceList
