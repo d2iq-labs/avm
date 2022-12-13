@@ -39,13 +39,25 @@ func InstallCommand(out output.Output) *cobra.Command {
 			}
 
 			defaultSource := avm.GetDefaultSource()
+
+			if len(args) < 2 {
+				return fmt.Errorf("Need at  least two arguments, plugin name and version, got args: %v", args)
+			}
+
 			pluginName := args[0]
 			pluginVersion := args[1]
+
+			var pluginURL string
+
+			if len(args) > 2 {
+				pluginURL = args[2]
+			}
 
 			err = defaultSource.InstallPluginVersion(
 				&types.InstallPluginVersionRequest{
 					Name:    pluginName,
 					Version: pluginVersion,
+					URL:     pluginURL,
 				},
 			)
 			if err != nil {
