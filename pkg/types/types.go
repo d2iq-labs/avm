@@ -66,6 +66,6 @@ type InstallPluginVersionRequest struct {
 	// Version of the plugin to install. Depending on the source, this may be a optional.
 	Version string
 
-	// URL of the plugin to install. Depending on the source, this may be optional.k
+	// URL of the plugin to install. Depending on the source, this may be optional.
 	URL string
 }
