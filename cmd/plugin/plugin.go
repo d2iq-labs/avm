@@ -68,6 +68,7 @@ func InstallCommand(out output.Output) *cobra.Command {
 
 			fmt.Printf("installed plugin %s with version %s\n", pluginName, pluginVersion)
 
+
 			return nil
 		},
 	}
