@@ -35,10 +35,9 @@ func ListCommand(out output.Output) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to initialize avm: %w", err)
 			}
+			// we only have one source for now, so we can just print it.
+			fmt.Printf("%s\n", avm.GetDefaultSource().Name())
 
-			for _, source := range avm.ListSources() {
-				fmt.Printf("%s\n", source.Name())
-			}
 			return nil
 		},
 	}

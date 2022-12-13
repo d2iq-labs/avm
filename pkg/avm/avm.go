@@ -10,22 +10,22 @@ import (
 	"github.com/mesosphere/dkp-cli-runtime/core/output"
 
 	"github.com/d2iq-labs/avm/pkg/config"
-	"github.com/d2iq-labs/avm/pkg/sources"
 	asdfpkg "github.com/d2iq-labs/avm/pkg/sources/asdf"
+	"github.com/d2iq-labs/avm/pkg/types"
 )
 
 var _ AVM = new(avm)
 
 // AVM provides an interface for managing the avm.
 type AVM interface {
-	// ListSources returns a list of installed sources.
-	ListSources() []sources.Source
+	// GetDefaultSource returns the default the source.
+	GetDefaultSource() types.Source
 }
 
 type avm struct {
 	out     output.Output
 	cfg     config.Config
-	sources map[string]sources.Source
+	sources map[string]types.Source
 }
 
 func New(out output.Output) (AVM, error) {
@@ -46,7 +46,7 @@ func New(out output.Output) (AVM, error) {
 		return nil, err
 	}
 
-	avm := &avm{out: out, cfg: cfg, sources: make(map[string]sources.Source)}
+	avm := &avm{out: out, cfg: cfg, sources: make(map[string]types.Source)}
 
 	// install sources, if not already installed. this is a no-op if the source is already installed.
 	asdf, err := asdfpkg.New(cfg, out)
@@ -59,14 +59,9 @@ func New(out output.Output) (AVM, error) {
 	return avm, nil
 }
 
-func (a *avm) ListSources() []sources.Source {
-	var sourceList []sources.Source
-
-	for _, source := range a.sources {
-		sourceList = append(sourceList, source)
-	}
-
-	return sourceList
+func (a *avm) GetDefaultSource() types.Source {
+	// we only have one source right now, so just return it
+	return a.sources["asdf"]
 }
 
 // ensureDirectory ensures that the given directory path exists.
