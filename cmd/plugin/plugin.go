@@ -29,7 +29,7 @@ func NewCommand(out output.Output) *cobra.Command {
 
 // InstallCommand creates a new command to install
 func InstallCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "install",
 		Short: "Installs a tool for a specific plugin",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,17 +40,19 @@ func InstallCommand(out output.Output) *cobra.Command {
 
 			defaultSource := avm.GetDefaultSource()
 
-			if len(args) < 2 {
-				return fmt.Errorf("Need at  least two arguments, plugin name and version, got args: %v", args)
+			pluginName, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return fmt.Errorf("Error parsing plugin name: %v", err)
 			}
 
-			pluginName := args[0]
-			pluginVersion := args[1]
+			pluginVersion, err := cmd.Flags().GetString("version")
+			if err != nil {
+				return fmt.Errorf("Error parsing plugin version: %v", err)
+			}
 
-			var pluginURL string
-
-			if len(args) > 2 {
-				pluginURL = args[2]
+			pluginURL, err := cmd.Flags().GetString("url")
+			if err != nil {
+				return fmt.Errorf("Error parsing plugin url: %v", err)
 			}
 
 			err = defaultSource.InstallPluginVersion(
@@ -69,6 +71,18 @@ func InstallCommand(out output.Output) *cobra.Command {
 			return nil
 		},
 	}
+
+	var name string
+	var version string
+	var url string
+
+	cmd.Flags().StringVar(&name, "name", "", "name of the plugin")
+	cmd.Flags().StringVar(&version, "version", "", "version of the plugin")
+	cmd.Flags().StringVar(&url, "url", "", "url of the plugin")
+	cmd.MarkFlagRequired("name")
+	cmd.MarkFlagRequired("version")
+
+	return cmd
 }
 
 // ListCommand creates a new command to remove a plugin
