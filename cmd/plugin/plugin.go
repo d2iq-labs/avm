@@ -39,18 +39,20 @@ func InstallCommand(out output.Output) *cobra.Command {
 			}
 
 			defaultSource := avm.GetDefaultSource()
+			pluginName := args[0]
+			pluginVersion := args[1]
 
 			err = defaultSource.InstallPluginVersion(
 				&types.InstallPluginVersionRequest{
-					Name:    "golang",
-					Version: "1.19.3",
+					Name:    pluginName,
+					Version: pluginVersion,
 				},
 			)
 			if err != nil {
 				return fmt.Errorf("failed to install plugin: %w", err)
 			}
 
-			fmt.Printf("installed plugin %s with version %s\n", "golang", "1.19.3")
+			fmt.Printf("installed plugin %s with version %s\n", pluginName, pluginVersion)
 
 			return nil
 		},
