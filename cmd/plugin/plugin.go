@@ -29,7 +29,13 @@ func NewCommand(out output.Output) *cobra.Command {
 
 // InstallCommand creates a new command to install
 func InstallCommand(out output.Output) *cobra.Command {
-	return &cobra.Command{
+	var (
+		pluginName    string
+		pluginVersion string
+		pluginURL     string
+	)
+
+	cmd := &cobra.Command{
 		Use:   "install",
 		Short: "Installs a tool for a specific plugin",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,19 +48,29 @@ func InstallCommand(out output.Output) *cobra.Command {
 
 			err = defaultSource.InstallPluginVersion(
 				&types.InstallPluginVersionRequest{
-					Name:    "golang",
-					Version: "1.19.3",
+					Name:    pluginName,
+					Version: pluginVersion,
+					URL:     pluginURL,
 				},
 			)
+
 			if err != nil {
 				return fmt.Errorf("failed to install plugin: %w", err)
 			}
 
-			fmt.Printf("installed plugin %s with version %s\n", "golang", "1.19.3")
+			fmt.Printf("installed plugin %s with version %s\n", pluginName, pluginVersion)
 
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&pluginName, "name", "", "name of the plugin")
+	cmd.Flags().StringVar(&pluginVersion, "version", "", "version of the plugin")
+	cmd.Flags().StringVar(&pluginURL, "url", "", "url of the plugin")
+	cmd.MarkFlagRequired("name")
+	cmd.MarkFlagRequired("version")
+
+	return cmd
 }
 
 // ListCommand creates a new command to remove a plugin
